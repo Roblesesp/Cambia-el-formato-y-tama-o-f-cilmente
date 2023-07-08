@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor de imágenes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    
+    h1 {
+      font-size: 32px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    #editor, #preview {
+      width: 100%;
+      border: 1px solid black;
+      padding: 20px;
+    }
+    
+    #editor {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    form {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    form label {
+      margin-bottom: 10px;
+    }
+    
+    form input[type="file"],
+    form input[type="number"],
+    form select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    
+    form input[type="submit"] {
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+    
+    #preview {
+      text-align: center;
+      overflow: hidden;
+      display: block;
+    }
+    
+    img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+    #preview a{
+      width: 100%;
+      padding: 5px;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #fff;
+      text-align: center;
+      margin-top: 20px;
+      float: left;
+      text-decoration: none;
+    }
+
+    
+    @media (max-width: 768px) {
+      #editor {
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Cambia el formato y tamaño de imágenes</h1>
+  <div id="editor">
+    <!-- Formulario para seleccionar la imagen y las opciones -->
+    <form>
+      <label for="imagen">Imagen:</label>
+      <input type="file" id="imagen" accept="image/*">
+      <label for="ancho">Ancho:</label>
+      <input type="number" id="ancho" placeholder="100">
+      <label for="alto">Alto:</label>
+      <input type="number" id="alto" placeholder="100">
+      <label for="formato">Formato:</label>
+      <select id="formato">
+        <option value="image/png">PNG</option>
+        <option value="image/jpeg">JPEG</option>
+        <option value="image/gif">GIF</option>
+      </select>
+      <input type="submit" value="Cambiar tamaño y formato">
+    </form>
+  </div>
+  <div id="preview"></div>
+
+  <script>
+    // Función para cambiar el tamaño y el formato de la imagen
+    function cambiarImagen() {
+      // Leer la imagen seleccionada y las opciones
+      var inputImagen = document.getElementById("imagen");
+      var imagen = inputImagen.files[0];
+      var ancho = document.getElementById("ancho").value;
+      var alto = document.getElementById("alto").value;
+      var formato = document.getElementById("formato").value;
+    
+      // Validar que se haya seleccionado una imagen
+      if (imagen) {
+        // Crear el objeto FileReader
+        var lector = new FileReader();
+    
+        // Evento para cuando se haya cargado la imagen
+        lector.addEventListener("load", function() {
+          // Crear el objeto Image
+          var imagenCargada = new Image();
+    
+          // Evento para cuando se haya cargado la imagen en el objeto
+          imagenCargada.addEventListener("load", function() {
+            // Crear el canvas y dibujar la imagen
+            var canvas = document.createElement("canvas");
+            canvas.width = ancho;
+            canvas.height = alto;
+            var contexto = canvas.getContext("2d");
+            contexto.drawImage(imagenCargada, 0, 0, ancho, alto);
+    
+            // Mostrar la imagen modificada en el preview
+            var preview = document.getElementById("preview");
+            preview.innerHTML = "";
+            preview.appendChild(canvas);
+    
+            // Descargar la imagen modificada
+            var link = document.createElement("a");
+            link.href = canvas.toDataURL(formato);
+            link.download = "imagen-modificada." + formato.split("/")[1];
+            link.innerHTML = "Descargar imagen";
+            preview.appendChild(link);
+          });
+    
+          // Cargar la imagen en el objeto
+          imagenCargada.src = lector.result;
+        });
+    
+        // Cargar la imagen en el lector
+        lector.readAsDataURL(imagen);
+      } else {
+        // Mostrar un mensaje de error
+        alert("Selecciona una imagen para continuar");
+      }
+    }
+    
+    // Evento para cambiar el tamaño y el formato de la imagen al enviar el formulario
+    var formulario = document.querySelector("form");
+    formulario.addEventListener("submit", function(evento) {
+      evento.preventDefault();
+      cambiarImagen();
+    });
+  </script>
+</body>
+</html>
+
+
+
